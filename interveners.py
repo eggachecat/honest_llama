@@ -17,6 +17,7 @@ class Collector():
         self.states = []
         self.actions = []
     def __call__(self, b, s): 
+        print("b", b.shape)
         if self.head == -1:
             self.states.append(b[0, -1].detach().clone())  # original b is (batch_size, seq_len, #key_value_heads x D_head)
         else:
@@ -41,5 +42,5 @@ class ITI_Intervener():
         self.states.append(b[0, -1].detach().clone())  # original b is (batch_size=1, seq_len, #head x D_head), now it's (#head x D_head)
         action = self.direction.to(b.device)
         self.actions.append(action.detach().clone())
-        b[0, -1] = b[0, -1] + action * self.multiplier
+        b[0, -1] = b[0, -1] + action * self.multiplierprint()
         return b

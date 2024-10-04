@@ -515,7 +515,7 @@ def run_kl_wrt_orig(model_key, model=None, tokenizer=None, device='cuda', interv
 
     return np.mean(kl_divs)
 
-def alt_tqa_evaluate(models, metric_names, input_path, output_path, summary_path, device='cpu', verbose=False, preset='qa', interventions={}, intervention_fn=None, cache_dir=None, separate_kl_device=None, orig_model=None, instruction_prompt="default", many_shot_prefix=None, judge_name=None, info_name=None): 
+def alt_tqa_evaluate_get_response(models, metric_names, input_path, output_path, summary_path, device='cpu', verbose=False, preset='qa', interventions={}, intervention_fn=None, cache_dir=None, separate_kl_device=None, orig_model=None, instruction_prompt="default", many_shot_prefix=None, judge_name=None, info_name=None): 
     """
     Inputs:
     models: a dictionary of the form {model_name: model} where model is a HF transformer # TODO: doesn't work with models other than llama right now
@@ -535,30 +535,6 @@ def alt_tqa_evaluate(models, metric_names, input_path, output_path, summary_path
     openai.api_key = os.environ.get('OPENAI_API_KEY')
     
     for mdl in models.keys(): 
-
-        # gpt-3
-        if mdl in ['ada', 'babbage', 'curie', 'davinci']:  # gpt-3 models
-            try:
-                models.run_GPT3(questions, mdl, mdl, preset)
-                utilities.save_questions(questions, output_path)
-                if 'mc' in metric_names:
-                    models.run_probs_GPT3(questions, mdl, mdl, preset=preset)
-                    utilities.save_questions(questions, output_path)
-            except Exception as err:
-                print(err)
-
-        # gpt-2
-        if mdl in ['gpt2', 'gpt2-xl']:
-            try:
-                print(questions)
-                questions = models.run_answers(questions, mdl, mdl, preset, device=device, cache_dir=cache_dir)
-                utilities.save_questions(questions, output_path)
-                if 'mc' in metric_names:
-                    models.run_probs(questions, mdl, mdl, preset=preset, device=device, cache_dir=cache_dir)
-                    utilities.save_questions(questions, output_path)
-            except Exception as err:
-                print(err)
-
         # llama
         if 'llama' in mdl or 'alpaca' in mdl or 'vicuna' in mdl:
             assert models[mdl] is not None, 'must provide llama model'
@@ -574,32 +550,12 @@ def alt_tqa_evaluate(models, metric_names, input_path, output_path, summary_path
             if 'mc' in metric_names:
                 questions = tqa_run_probs(questions, ENGINE_MAP[mdl], mdl, model=llama_model, tokenizer=llama_tokenizer, preset=preset, device=device, cache_dir=cache_dir, verbose=False, interventions=interventions, intervention_fn=intervention_fn, instruction_prompt=instruction_prompt, many_shot_prefix=many_shot_prefix)
                 utilities.save_questions(questions, output_path)
-        
-        # gpt-neo
-        if mdl in ['neo-small', 'neo-med', 'neo-large']:
-            try:
-                models.run_answers(questions, ENGINE_MAP[mdl], mdl, preset,
-                                   device=device, cache_dir=cache_dir)
-                utilities.save_questions(questions, output_path)
-                if 'mc' in metric_names:
-                    models.run_probs(questions, ENGINE_MAP[mdl], mdl, preset=preset, device=device,
-                                     cache_dir=cache_dir)
-                    utilities.save_questions(questions, output_path)
-            except Exception as err:
-                print("ERROR")
-                print(err)
 
-        # unifiedqa
-        if mdl in ['uqa-small', 'uqa-base', 'uqa-large', 'uqa-3b']:
-            try:
-                models.run_UnifQA(questions, ENGINE_MAP[mdl], mdl, preset, device=device, cache_dir=cache_dir)
-                utilities.save_questions(questions, output_path)
-                if 'mc' in metric_names:
-                    models.run_probs_T5(questions, ENGINE_MAP[mdl], mdl, preset, device=device, cache_dir=cache_dir)
-                    utilities.save_questions(questions, output_path)
-            except Exception as err:
-                print(err)
+    utilities.save_questions(questions, output_path)
 
+def alt_tqa_evaluate_judge(models, metric_names, input_path, output_path, summary_path, device='cpu', verbose=False, preset='qa', interventions={}, intervention_fn=None, cache_dir=None, separate_kl_device=None, orig_model=None, instruction_prompt="default", many_shot_prefix=None, judge_name=None, info_name=None): 
+
+    questions = utilities.load_questions(filename=input_path)
     for model_key in models.keys(): 
 
         for metric in metric_names: 

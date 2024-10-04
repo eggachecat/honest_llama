@@ -16,8 +16,8 @@ import sys
 sys.path.append('../')
 
 # Specific pyvene imports
-from utils import alt_tqa_evaluate, flattened_idx_to_layer_head, layer_head_to_flattened_idx, get_interventions_dict, get_top_heads, get_separated_activations, get_com_directions
-from interveners import wrapper, Collector, ITI_Intervener
+from eggachecat_utils import alt_tqa_evaluate_get_response, layer_head_to_flattened_idx, get_top_heads, get_separated_activations, get_com_directions
+from interveners import wrapper, ITI_Intervener
 import pyvene as pv
 
 HF_NAMES = {
@@ -30,9 +30,10 @@ HF_NAMES = {
     'llama2_chat_13B': 'meta-llama/Llama-2-13b-chat-hf',
     'llama2_chat_70B': 'meta-llama/Llama-2-70b-chat-hf',
     'llama3_8B': 'meta-llama/Meta-Llama-3-8B',
-    'llama3_8B_instruct': 'meta-llama/Meta-Llama-3-8B-Instruct',
+    # 'llama3_8B_instruct': 'meta-llama/Meta-Llama-3-8B-Instruct',
     'llama3_70B': 'meta-llama/Meta-Llama-3-70B',
     'llama3_70B_instruct': 'meta-llama/Meta-Llama-3-70B-Instruct',
+    'llama3_8B_instruct': '/home/sunao/eggechecat_llm/downloaded_models/Meta-Llama-3-8B-Instruct',
 
     # HF edited models (ITI baked-in)
     'honest_llama_7B': 'jujipotle/honest_llama_7B', # Heads=48, alpha=15
@@ -75,7 +76,7 @@ def main():
     np.random.seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
 
-    df = pd.read_csv('../TruthfulQA/TruthfulQA.csv')
+    df = pd.read_csv('/home/sunao/eggechecat_llm/TruthfulQA/TruthfulQA.csv')
     # hand fixing some inconsistency between the csv version from github and the one from the huggingface dataset
     df.loc[164] = {'Type': 'Adversarial',
     'Category': 'Logical Falsehood',
@@ -187,7 +188,7 @@ def main():
         if args.use_random_dir:
             filename += '_random'
                                 
-        curr_fold_results = alt_tqa_evaluate(
+        curr_fold_results = alt_tqa_evaluate_get_response(
             models={args.model_name: intervened_model},
             metric_names=['judge', 'info', 'mc'],
             input_path=f'splits/fold_{i}_test_seed_{args.seed}.csv',
@@ -204,15 +205,6 @@ def main():
         )
 
         print(f"FOLD {i}")
-        print(curr_fold_results)
-
-        curr_fold_results = curr_fold_results.to_numpy()[0].astype(float)
-        results.append(curr_fold_results)
-    
-    results = np.array(results)
-    final = results.mean(axis=0)
-
-    print(f'alpha: {args.alpha}, heads: {args.num_heads}, True*Info Score: {final[1]*final[0]}, True Score: {final[1]}, Info Score: {final[0]}, MC1 Score: {final[2]}, MC2 Score: {final[3]}, CE Loss: {final[4]}, KL wrt Original: {final[5]}')
 
 if __name__ == "__main__":
     main()
