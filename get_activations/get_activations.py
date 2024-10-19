@@ -16,6 +16,8 @@ from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
 from utils import get_llama_activations_pyvene, tokenized_tqa, tokenized_tqa_gen, tokenized_tqa_gen_end_q
 from interveners import wrapper, Collector, ITI_Intervener
 import pyvene as pv
+import os
+wsFolder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../..")
 
 HF_NAMES = {
     # 'llama_7B': 'baffo32/decapoda-research-llama-7B-hf',
@@ -29,7 +31,7 @@ HF_NAMES = {
     # 'llama3_8B_instruct': 'meta-llama/Meta-Llama-3-8B-Instruct',
     'llama3_70B': 'meta-llama/Meta-Llama-3-70B',
     'llama3_70B_instruct': 'meta-llama/Meta-Llama-3-70B-Instruct',
-    'llama3_8B_instruct': '/home/sunao/eggechecat_llm/downloaded_models/Meta-Llama-3-8B-Instruct',
+    'llama3_8B_instruct': f'{wsFolder}/downloaded_models/Meta-Llama-3-8B-Instruct',
 }
 
 def main(): 

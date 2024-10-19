@@ -19,6 +19,8 @@ sys.path.append('../')
 from eggachecat_utils import alt_tqa_evaluate_get_response, layer_head_to_flattened_idx, get_top_heads, get_separated_activations, get_com_directions
 from interveners import wrapper, ITI_Intervener
 import pyvene as pv
+import os
+wsFolder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../..")
 
 HF_NAMES = {
     # Base models
@@ -33,7 +35,7 @@ HF_NAMES = {
     # 'llama3_8B_instruct': 'meta-llama/Meta-Llama-3-8B-Instruct',
     'llama3_70B': 'meta-llama/Meta-Llama-3-70B',
     'llama3_70B_instruct': 'meta-llama/Meta-Llama-3-70B-Instruct',
-    'llama3_8B_instruct': '/home/sunao/eggechecat_llm/downloaded_models/Meta-Llama-3-8B-Instruct',
+    'llama3_8B_instruct': f'{wsFolder}/downloaded_models/Meta-Llama-3-8B-Instruct',
 
     # HF edited models (ITI baked-in)
     'honest_llama_7B': 'jujipotle/honest_llama_7B', # Heads=48, alpha=15
@@ -76,7 +78,7 @@ def main():
     np.random.seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
 
-    df = pd.read_csv('/home/sunao/eggechecat_llm/TruthfulQA/TruthfulQA.csv')
+    df = pd.read_csv(f'{wsFolder}/TruthfulQA/TruthfulQA.csv')
     # hand fixing some inconsistency between the csv version from github and the one from the huggingface dataset
     df.loc[164] = {'Type': 'Adversarial',
     'Category': 'Logical Falsehood',

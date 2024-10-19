@@ -23,6 +23,7 @@ import pickle
 from truthfulqa import utilities, metrics_eggachecat_v2 as metrics
 import openai
 from truthfulqa.configs import BEST_COL, ANSWER_COL, INCORRECT_COL
+wsFolder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 ENGINE_MAP = {
     # 'llama_7B': 'baffo32/decapoda-research-llama-7B-hf',
@@ -36,7 +37,7 @@ ENGINE_MAP = {
     # 'llama3_8B_instruct': 'meta-llama/Meta-Llama-3-8B-Instruct',
     'llama3_70B': 'meta-llama/Meta-Llama-3-70B',
     'llama3_70B_instruct': 'meta-llama/Meta-Llama-3-70B-Instruct',
-    'llama3_8B_instruct': '/home/sunao/eggechecat_llm/downloaded_models/Meta-Llama-3-8B-Instruct',
+    'llama3_8B_instruct': f'{wsFolder}/downloaded_models/Meta-Llama-3-8B-Instruct',
 }
 
 from truthfulqa.utilities import (
